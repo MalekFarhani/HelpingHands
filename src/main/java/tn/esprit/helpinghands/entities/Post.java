@@ -1,12 +1,10 @@
 package tn.esprit.helpinghands.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.Entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,8 +18,10 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     String postTitle;
-
-    LocalDateTime createdAt;
-
+    LocalDateTime createDate;
     String body;
+    @JsonIgnore
+    @ManyToOne
+    User user;
+
 }
