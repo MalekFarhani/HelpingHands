@@ -1,13 +1,16 @@
 package tn.esprit.helpinghands.serviceImpl;
 
+import com.cloudinary.Cloudinary;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.helpinghands.entities.Media;
 import tn.esprit.helpinghands.entities.Post;
 import tn.esprit.helpinghands.entities.User;
+import tn.esprit.helpinghands.repositories.MediaRepo;
 import tn.esprit.helpinghands.repositories.PostRepo;
 import tn.esprit.helpinghands.repositories.UserRepo;
 import tn.esprit.helpinghands.security.AuthenticationService;
@@ -29,20 +32,45 @@ public class PostServiceImpl implements PostIservice {
     UserRepo userRepo;
     private BadWordServiceImpl badWordService ;
     private AuthenticationService authenticationService;
+    Cloudinary cloudinary;
+    MediaRepo mediaRepo;
+
     @Override
-    public ResponseEntity<?> addPost(Post post) throws IOException {
+    public ResponseEntity<?> addPost(List<MultipartFile> files, Post post) throws IOException {
         User u = authenticationService.currentlyAuthenticatedUser();
         if (badWordService.Filtrage_bad_word(post.getBody()) == 0 && badWordService.Filtrage_bad_word(post.getPostTitle()) == 0) {
             post.setUser(u);
-            u.getPosts().add(post);
-            postRepo.save(post);
-            return ResponseEntity.ok().body(post);
+            if (files==null||files.isEmpty()) {
+                post.setMedias(null);
+                post.setCreatedAt(LocalDateTime.now());
+                postRepo.save(post);
+                return ResponseEntity.ok().body(post);
+            }
+            else{
+                List<Media> mediaList = new ArrayList<>();
+                for (MultipartFile multipartFile : files) {
+                    Media media = new Media();
+                    String url = cloudinary.uploader()
+                            .upload(multipartFile.getBytes(),
+                                    Map.of("public_id", UUID.randomUUID().toString()))
+                            .get("url")
+                            .toString();
+                    media.setImagenUrl(url);
+                    media.setName(multipartFile.getName());
+                    mediaList.add(media);
+                }
+                mediaRepo.saveAll(mediaList);
+                post.setMedias(mediaList);
+                post.setCreatedAt(LocalDateTime.now());
+                postRepo.save(post);
+                return ResponseEntity.ok().body(post);
+            }
         } else
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Bads Word Detected");
     }
 
     @Override
-    public ResponseEntity<?> Update_post(Post post, Integer idPost) throws IOException {
+    public ResponseEntity<?> Update_post(Post post, List<MultipartFile> files, Integer idPost) throws IOException {
         Post oldPost = postRepo.getReferenceById(idPost);
         User usr = authenticationService.currentlyAuthenticatedUser();
         if (oldPost.getUser().equals(usr)) {
@@ -54,35 +82,34 @@ public class PostServiceImpl implements PostIservice {
                 if (post.getPostTitle() != null) {
                     oldPost.setPostTitle(post.getPostTitle());
                 }
+                if (post.getMedias() != null) {
+                    List<Media> mediaList = new ArrayList<>();
+                    for (MultipartFile multipartFile : files) {
+                        Media media = new Media();
+                        String url = cloudinary.uploader()
+                                .upload(multipartFile.getBytes(),
+                                        Map.of("public_id", UUID.randomUUID().toString()))
+                                .get("url")
+                                .toString();
+                        media.setImagenUrl(url);
+                        media.setName(multipartFile.getName());
+                        mediaList.add(media);
+                    }
+                    mediaRepo.saveAll(mediaList);
+                    oldPost.setMedias(mediaList);
+
+                }
+
                 postRepo.save(oldPost);
                 return ResponseEntity.ok().body(oldPost);
             } else
                 return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Bads Word Detected");
         }
         return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("You are not the owner of this post");
-
     }
-      /*  if (postRepo.existsById(idPost)) {
-            Post post1 = postRepo.findById(idPost).orElseThrow(() -> new EntityNotFoundException("post not found"));
-            //User user = userRepo.findById(idUser).orElseThrow(() -> new EntityNotFoundException("User not found"));
-            if (badWordService.Filtrage_bad_word(post.getBody()) == 0 && badWordService.Filtrage_bad_word(post.getPostTitle()) == 0) {
-                if (post.getPostTitle().equals("") == false)
-                    post1.setPostTitle(post.getPostTitle());
-                if (post.getBody().equals("") == false)
-                    post1.setBody(post.getBody());
-                postRepo.save(post1);
-                return ResponseEntity.ok().body(post);
-*/
-
 
     @Override
-    public String deletePost(Integer postId ) {
-       /* User u = userRepo.findById(idUser).orElse(null);
-        if (postRepo.findById(postId).get().getUser().getId()==u.getId()) {
-            postRepo.delete(postRepo.findById(postId).get());
-            return "Post deleted successfully";
-        }
-        return "You can't delete this post .You are not the owner of this post";*/
+    public String deletePost(Integer postId) {
         User user = authenticationService.currentlyAuthenticatedUser();
         if (postRepo.findById(postId).get().getUser().getId()==user.getId()) {
             postRepo.delete(postRepo.findById(postId).get());
@@ -105,28 +132,26 @@ public class PostServiceImpl implements PostIservice {
 
     @Override
     public List<Post> Get_post_by_User(Integer idUser) {
-
-
-    List<Post> postList = new ArrayList<>();
+        List<Post> postList = new ArrayList<>();
         for(Post post: postRepo.findAll())
-    {
-        if (post.getUser().getId()==idUser)
         {
-            postList.add(post);
+            if (post.getUser().getId()==idUser)
+            {
+                postList.add(post);
+            }
         }
-    }
         return postList;
-
-}
+    }
 
     @Override
     public List<Post> Searchpost(String ch, Integer id) {
-        List<Post> sp = new ArrayList<>();
+        List<Post> ll = new ArrayList<>();
         for (Post post : postRepo.findAll()) {
             if (post.getBody().contains(ch) || post.getPostTitle().contains(ch))
-                sp.add(post);
+                ll.add(post);
         }
-        return sp;
+        return ll;
     }
     }
+
 

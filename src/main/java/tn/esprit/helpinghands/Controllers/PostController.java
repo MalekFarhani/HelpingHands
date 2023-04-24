@@ -14,8 +14,6 @@ import tn.esprit.helpinghands.services.PostIservice;
 
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 @RestController
 @RequestMapping("/post")
@@ -23,17 +21,15 @@ import java.util.List;
 public class PostController {
     PostIservice postIservice;
     private AuthenticationService authenticationService ;
-
     @PostMapping("/add")
     @ResponseBody
-    public ResponseEntity<?> addPost(@ModelAttribute Post post) throws IOException {
-        return postIservice.addPost(post);
+    public ResponseEntity<?> addPost(@ModelAttribute Post post, @RequestParam(value = "files",required = false) List<MultipartFile> files) throws IOException {
+        return postIservice.addPost(files,post);
     }
-
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<?> Update_Post(@ModelAttribute Post post, @RequestParam Integer idPost) throws IOException {
-        return postIservice.Update_post(post,idPost);
+    public ResponseEntity<?> Update_Post(@ModelAttribute Post post,@RequestParam(value = "files",required = false) List<MultipartFile> files, @RequestParam Integer idPost) throws IOException {
+        return postIservice.Update_post(post,files,idPost);
     }
     @PostMapping("/delete")
     public String deletePost(@RequestParam Integer idPost) {
@@ -48,7 +44,6 @@ public class PostController {
     }
     @GetMapping("/findByUser")
     public List<Post> Get_post_by_User(@RequestParam Integer idUser){
-
         return postIservice.Get_post_by_User(idUser);
     }
     @GetMapping("/findById")
@@ -57,10 +52,12 @@ public class PostController {
 
     }
     @GetMapping("/searchPost")
-    public  List<Post> SearchPost(@RequestParam String ch){
+    public  List<Post> adversting_bydata(@RequestParam String ch){
         Integer idUser = authenticationService.currentlyAuthenticatedUser().getId();
         return postIservice.Searchpost(ch,idUser);
     }
+
+
 
 }
 
