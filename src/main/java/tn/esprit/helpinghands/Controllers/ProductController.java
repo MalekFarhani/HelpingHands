@@ -5,7 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.helpinghands.entities.Product;
+import tn.esprit.helpinghands.entities.ProductCategory;
+import tn.esprit.helpinghands.services.ProductCategoryService;
 import tn.esprit.helpinghands.services.ProductService;
+
 
 
 import java.util.List;
@@ -56,5 +59,15 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Autowired
+    ProductCategoryService categoryService;
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+        ProductCategory category = categoryService.getCategoryById(categoryId);
+        List<Product> products = productService.getProductsByCategory(category);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 }

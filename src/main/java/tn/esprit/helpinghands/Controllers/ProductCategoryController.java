@@ -1,5 +1,6 @@
 package tn.esprit.helpinghands.Controllers;
 
+import tn.esprit.helpinghands.entities.Product;
 import tn.esprit.helpinghands.entities.ProductCategory;
 import tn.esprit.helpinghands.services.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,4 +62,6 @@ public class ProductCategoryController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+
 }

@@ -3,6 +3,7 @@ package tn.esprit.helpinghands.serviceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.helpinghands.entities.Product;
+import tn.esprit.helpinghands.entities.ProductCategory;
 import tn.esprit.helpinghands.repositories.ProductRepository;
 import tn.esprit.helpinghands.services.ProductService;
 
@@ -34,5 +35,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long productId) {
         productRepository.deleteById(productId);
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(ProductCategory category) {
+        return productRepository.findByCategory(category);
     }
 }
