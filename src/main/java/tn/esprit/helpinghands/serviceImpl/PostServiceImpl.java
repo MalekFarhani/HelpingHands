@@ -82,7 +82,8 @@ public class PostServiceImpl implements PostIservice {
                 if (post.getPostTitle() != null) {
                     oldPost.setPostTitle(post.getPostTitle());
                 }
-                if (post.getMedias() != null) {
+                if (post.getMedias()
+                        != null) {
                     List<Media> mediaList = new ArrayList<>();
                     for (MultipartFile multipartFile : files) {
                         Media media = new Media();

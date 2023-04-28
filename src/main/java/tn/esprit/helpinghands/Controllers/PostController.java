@@ -12,12 +12,12 @@ import tn.esprit.helpinghands.entities.User;
 import tn.esprit.helpinghands.security.AuthenticationService;
 import tn.esprit.helpinghands.services.PostIservice;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
 @RestController
 @RequestMapping("/post")
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class PostController {
     PostIservice postIservice;
     private AuthenticationService authenticationService ;
@@ -52,7 +52,7 @@ public class PostController {
 
     }
     @GetMapping("/searchPost")
-    public  List<Post> adversting_bydata(@RequestParam String ch){
+    public  List<Post> search_post(@RequestParam String ch){
         Integer idUser = authenticationService.currentlyAuthenticatedUser().getId();
         return postIservice.Searchpost(ch,idUser);
     }

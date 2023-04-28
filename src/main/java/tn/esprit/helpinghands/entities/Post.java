@@ -25,13 +25,12 @@ public class Post implements Serializable {
     LocalDateTime createdAt;
     String body;
     @JsonIgnore
-    @JsonBackReference
     @ManyToOne
     User user;
+    @JsonIgnore
     @OneToMany
     List<Media> medias;
     @JsonIgnore
-    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<React> reacts;
 
