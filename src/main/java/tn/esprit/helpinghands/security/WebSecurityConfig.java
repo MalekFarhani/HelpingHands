@@ -8,12 +8,21 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import tn.esprit.helpinghands.serviceImpl.UserDetailsServiceImpl;
+
+import java.util.Arrays;
+
 //import tn.esprit.kaddemproject.services.UserDetailsServiceImpl;
 //import tn.esprit.kaddemproject.security.AuthEntryPointJwt;
 //import tn.esprit.kaddemproject.security.AuthTokenFilter;
@@ -22,7 +31,7 @@ import tn.esprit.helpinghands.serviceImpl.UserDetailsServiceImpl;
         // securedEnabled = true,
         // jsr250Enabled = true,
         prePostEnabled = true)
-public class WebSecurityConfig {
+public class WebSecurityConfig  {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
@@ -80,11 +89,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/reset/**").permitAll()
-                .anyRequest().authenticated();
+                .authorizeRequests().anyRequest().permitAll();
 
         http.authenticationProvider(authenticationProvider());
 
@@ -92,4 +97,5 @@ public class WebSecurityConfig {
 
         return http.build();
     }
+
 }
