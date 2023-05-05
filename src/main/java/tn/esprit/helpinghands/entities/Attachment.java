@@ -1,5 +1,6 @@
 package tn.esprit.helpinghands.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,7 +20,8 @@ public class Attachment {
     long size;
     @Lob
     byte[] data;
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(mappedBy = "attachment", cascade = CascadeType.ALL)
     Reclamation reclamation;
 
 }

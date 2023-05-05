@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.helpinghands.entities.Attachment;
 import tn.esprit.helpinghands.entities.Reclamation;
 import tn.esprit.helpinghands.entities.User;
+import tn.esprit.helpinghands.repositories.AttachmentRepository;
+import tn.esprit.helpinghands.repositories.ReclamationRepository;
 import tn.esprit.helpinghands.serviceImpl.*;
 
 import java.util.Arrays;
@@ -25,12 +27,25 @@ public class ReclamationController {
     IAttachment attachmentImpl;
     @Autowired
     IUserService userService;
+    @Autowired
+    AttachmentRepository attachmentRepository;
+    @Autowired
+    ReclamationRepository reclamationRepository;
     @PostMapping(path = "/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     Reclamation addReclamation(@RequestParam(required = false) MultipartFile file,@ModelAttribute Reclamation reclamation,@PathVariable Long id){
         User user=userService.getUser(id);
         reclamation.setUser(user);
         reclamation.setId(0l);
-
+        if(file!=null)
+        {
+            Attachment attachment= attachmentImpl.addAttachmentToReclamation(file);
+            reclamation.setAttachment(attachment);
+        }
+        return reclamationService.addReclamation(reclamation);
+    }
+    @PostMapping(path = "/file/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    Reclamation addfile(@RequestParam(required = false) MultipartFile file,@PathVariable Long id){
+        Reclamation reclamation = reclamationRepository.findById(id).get();
         if(file!=null)
         {
             Attachment attachment= attachmentImpl.addAttachmentToReclamation(file);
@@ -38,6 +53,11 @@ public class ReclamationController {
         }
 
         return reclamationService.addReclamation(reclamation);
+    }
+
+    @GetMapping("files")
+    List<Attachment> getAllFiles(){
+        return attachmentRepository.findAll();
     }
     @PutMapping
     Reclamation updateReclamation(@RequestParam(required = false) MultipartFile file,@ModelAttribute Reclamation reclamation)

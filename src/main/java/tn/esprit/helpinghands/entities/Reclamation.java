@@ -30,8 +30,7 @@ public class Reclamation {
     ReclamationStatus status;
     @ManyToOne
     private User user;
-    @JsonIgnore
-    @OneToOne(mappedBy = "reclamation", cascade = CascadeType.ALL)
+    @OneToOne
     private Attachment attachment;
     @ManyToMany(cascade = CascadeType.PERSIST)
     private List<CategoryReclamation> categoryReclamations;
