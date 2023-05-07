@@ -6,6 +6,9 @@ import tn.esprit.helpinghands.entities.Product;
 import tn.esprit.helpinghands.entities.ProductCategory;
 import tn.esprit.helpinghands.repositories.ProductRepository;
 import tn.esprit.helpinghands.services.ProductService;
+import tn.esprit.helpinghands.entities.ImageClass;
+import tn.esprit.helpinghands.repositories.ImageRepository;
+import tn.esprit.helpinghands.services.ImageService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +19,34 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Override
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    ImageRepository imageRepository;
+
+    /**@Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }**/
+
+    @Override
+    public List<Product> getAllProducts() {
+        List<Product> listProduct = (List<Product>) productRepository.findAll();
+
+        for (Product product : listProduct) {
+            ImageClass img = new ImageClass(product.getImage().getType(),
+                    imageService.decompressBytes(product.getImage().getPicByte()));
+            product.setImage(img);}
+        return listProduct;
     }
+
+
+
+
+
+
+
 
     @Override
     public Product getProductById(Long productId) {
@@ -27,9 +54,15 @@ public class ProductServiceImpl implements ProductService {
         return productOptional.orElse(null);
     }
 
-    @Override
+    /*@Override
     public Product saveProduct(Product product) {
         return productRepository.save(product);
+    }*/
+    @Override
+    public Product saveProduct(Product p) {
+        ImageClass image = imageRepository.findImageById(p.getImage().getId());
+        p.setImage(image);
+        return productRepository .save(p);
     }
 
     @Override

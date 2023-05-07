@@ -42,6 +42,15 @@ public class Product implements Serializable {
 
     private ProductCategory category;
 
+
+    //image
+    @OneToOne
+    private ImageClass image;
+
+
+
+
+
     public Product() {
     }
 
@@ -54,6 +63,7 @@ public class Product implements Serializable {
         this.product_description = product_description;
         this.quantity = quantity;
         this.category = category;
+        this.image = image;
     }
 
     public Long getId_product() {
@@ -126,5 +136,16 @@ public class Product implements Serializable {
 
     public void setCategory(ProductCategory category) {
         this.category = category;
+    }
+
+
+
+    public ImageClass getImage() {
+        return image;
+    }
+
+
+    public void setImage(ImageClass image) {
+        this.image = image;
     }
 }
