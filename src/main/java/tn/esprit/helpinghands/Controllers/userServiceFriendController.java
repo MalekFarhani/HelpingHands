@@ -35,7 +35,8 @@ import springfox.documentation.annotations.ApiIgnore;
 @CrossOrigin(origins = "http://localhost:4200/")
 @RestController
 @RequestMapping("/user")
-public class userServiceFriendController {
+public class
+userServiceFriendController {
     @Autowired
     private IUserService userService;
     @Autowired
@@ -43,6 +44,10 @@ public class userServiceFriendController {
     @GetMapping("/notifications")
     public List<Notification> findNotificationsByUser( @AuthenticationPrincipal User u) {
         return userService.findNotificationsByUser(u.getId());
+    }
+    @GetMapping("/notifications2")
+    public List<Notification> findNotificationsByUser2( @RequestParam long userId) {
+        return userService.findNotificationsByUser(userId);
     }
     @PostMapping("/notification/save/{username}")
     public Notification addNotification(@RequestBody Notification notification,@PathVariable(name="username") String username) {
@@ -62,9 +67,17 @@ public class userServiceFriendController {
     public void saveFriend(@PathVariable(value="username2") String username2, @AuthenticationPrincipal User u) throws FriendExist {
         userService.saveFriend(u.getUsername(), username2);
     }
+    @PostMapping("/friend/follow2")
+    public void saveFriend2( @RequestParam String username1, @RequestParam String username2) throws FriendExist {
+        userService.saveFriend( username1, username2);
+    }
     @DeleteMapping("/friend/unfollow/{username2}")
     public void deleteFriend(@PathVariable(value="username2") String username2, @AuthenticationPrincipal User u){
         userService.deleteFriend(u.getUsername(), username2);
+    }
+    @DeleteMapping("/friend/unfollow2")
+    public void deleteFriend2(@RequestParam String username1, @RequestParam String username2){
+        userService.deleteFriend(username1, username2);
     }
 
 
@@ -74,6 +87,7 @@ public class userServiceFriendController {
         u = userService.findByUsername(user.getUsername()).orElse(null);
         return userService.getMyFriends(u);
     }
+
     @GetMapping("/friends2")
     public List<User> getMyFriends2(@RequestParam Long userId){
         User u = userRepository.findById(userId).orElse(null);
@@ -100,10 +114,20 @@ public class userServiceFriendController {
         User u = userService.getUser(user.getId());
         return userService.getSuggestedUsers2(u);
     }
+    @GetMapping("/suggestions3")
+    public Set<User> getSuggestedUsers3( @RequestParam long userid) {
+       // User u = userService.getUser(user.getId());
+        return userService.getSuggestedUsers3(userid);
+    }
 
     @GetMapping("/common-friends")
     public List<User> FriendsInCommon( @AuthenticationPrincipal User user,@RequestParam Long userId2) {
         Long userId1 = user.getId();
+        return userService.FriendsInCommon(userId1, userId2);
+    }
+    @GetMapping("/common-friends2")
+    public List<User> FriendsInCommon2( @RequestParam long userId1,@RequestParam long userId2) {
+       // Long userId1 = user.getId();
         return userService.FriendsInCommon(userId1, userId2);
     }
 

@@ -2,6 +2,8 @@ package tn.esprit.helpinghands.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,7 @@ import tn.esprit.helpinghands.entities.User;
 import tn.esprit.helpinghands.repositories.RoleRepository;
 import tn.esprit.helpinghands.repositories.UserRepository;
 import tn.esprit.helpinghands.security.*;
+import tn.esprit.helpinghands.serviceImpl.IUserService;
 import tn.esprit.helpinghands.serviceImpl.UserDetailsImpl;
 /*import tn.esprit.helpinghands.entities.ERole;
 import tn.esprit.kaddemproject.entities.Role;
@@ -23,7 +26,10 @@ import tn.esprit.kaddemproject.repositories.UserRepository;
 import tn.esprit.kaddemproject.security.*;
 import tn.esprit.kaddemproject.services.UserDetailsImpl;*/
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +44,10 @@ public class AuthController {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private JavaMailSender mailSender;
+    @Autowired
+    IUserService userService;
 
     @Autowired
     RoleRepository roleRepository;
@@ -69,8 +79,9 @@ public class AuthController {
                 roles));
     }
 
+
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException, UnsupportedEncodingException {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -117,12 +128,40 @@ public class AuthController {
                 }
             });
         }
+        String resetPasswordLink = "http://localhost:4200/client";//Utility.getSiteURL(request) + "/reset/reset_password?token=" + token;
+        sendEmail(user.getEmail(), resetPasswordLink);
 
         user.setRoles(roles);
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+    public void sendEmail(String recipientEmail, String link)
+            throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom("hazem.langar@esprit.tn", "Shopme Support");
+        helper.setTo(recipientEmail);
+
+        String subject = "Here's the link to reset your password";
+
+        String content = "<p>Hello,</p>"
+                + "<p>You have requested to reset your password.</p>"
+                + "<p>Click the link below to change your password:</p>"
+                + "<p><a href=\"" + link + "\">Change my password</a></p>"
+                + "<br>"
+                + "<p>Ignore this email if you do remember your password, "
+                + "or you have not made the request.</p>";
+
+        helper.setSubject(subject);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
 
 
 }
+
+

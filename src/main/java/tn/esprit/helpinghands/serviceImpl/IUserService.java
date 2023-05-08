@@ -79,6 +79,8 @@ public interface IUserService {
     //Transactional is required when executing an update/delete query.
     void makeAdmin(String username);*/
 
+    void updatePassword2(User customer, String newPassword);
+
     void saveFriend(String username1, String username2) throws FriendExist;
 
     void deleteFriend(String username1, String username2);
@@ -92,6 +94,10 @@ public interface IUserService {
     Set<User> getSuggestedUsers(User u);
 
     Set<User> getSuggestedUsers2(User u);
+
+   // Set<User> getSuggestedUsers3(u);
+
+    Set<User> getSuggestedUsers3(long userid);
 
     List<User> FriendsInCommon(Long userId1, Long userId2);
 

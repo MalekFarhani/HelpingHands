@@ -118,6 +118,7 @@ public class UserDetailsServiceImpl implements UserDetailsService,IUserService{
         email.setFrom("support@helpinghands.com");
         return email;
     }*/
+    /////////////////mail///////////////////////
     @Override
     public void updateResetPasswordToken(String token, String email) throws UserNotFoundException {
         User customer = userRepository.findByEmail(email);
@@ -132,8 +133,10 @@ public class UserDetailsServiceImpl implements UserDetailsService,IUserService{
     public User getByResetPasswordToken(String token) {
         return userRepository.findByResetPasswordToken(token);
     }
+
+
     @Override
-    public void updatePassword(User customer, String newPassword) {
+    public void updatePassword2(User customer, String newPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(newPassword);
         customer.setPassword(encodedPassword);
@@ -152,6 +155,16 @@ public class UserDetailsServiceImpl implements UserDetailsService,IUserService{
         }
         return result;
     }*/
+    //////////////////////////////////////////////////
+    @Override
+    public void updatePassword(User customer, String newPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        customer.setPassword(encodedPassword);
+
+        //customer.setResetPasswordToken(null);
+        userRepository.save(customer);
+    }
 
 
 
@@ -162,6 +175,7 @@ public class UserDetailsServiceImpl implements UserDetailsService,IUserService{
         userRepository.makeAdmin(username);
 
     }*/
+
     @Override
     public void saveFriend(String username1, String username2) throws FriendExist {
 
@@ -257,6 +271,26 @@ public class UserDetailsServiceImpl implements UserDetailsService,IUserService{
     }
     @Override
     public Set<User> getSuggestedUsers2(User u) {
+        List<Friend> allFriends = friendRepository.findAll();
+        List<User> myFriends = getMyFriends(u);
+        Set<User> suggestedFriends = new HashSet<>();
+        int count = 0;
+
+
+        for (Friend f : allFriends) {
+            for (User myFriend : myFriends) {
+                if ( (f.getSender().getId() == myFriend.getId()) && (f.getReceiver().getId() != u.getId()) && (!(myFriends.contains(f.getReceiver()))) && (count != 8)) {
+                    suggestedFriends.add(f.getReceiver());
+                    count++;
+                }
+            }
+        }
+
+        return suggestedFriends;
+    }
+    @Override
+    public Set<User> getSuggestedUsers3(long userid) {
+        User u= userRepository.findById(userid).orElse(null);
         List<Friend> allFriends = friendRepository.findAll();
         List<User> myFriends = getMyFriends(u);
         Set<User> suggestedFriends = new HashSet<>();

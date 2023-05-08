@@ -44,8 +44,8 @@ public class ForgotPasswordController {
 
         try {
             customerService.updateResetPasswordToken(token, email);
-            String resetPasswordLink = Utility.getSiteURL(request) + "/reset/reset_password?token=" + token;
-            sendEmail(email, resetPasswordLink);
+            String resetPasswordLink = "http://localhost:4200/resetpassword";//Utility.getSiteURL(request) + "/reset/reset_password?token=" + token;
+            sendEmail(email, resetPasswordLink,token);
             model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
 
         } catch (UserNotFoundException ex) {
@@ -57,7 +57,7 @@ public class ForgotPasswordController {
         return "forgot_password_form";
     }
 
-    public void sendEmail(String recipientEmail, String link)
+    public void sendEmail(String recipientEmail, String link,String token)
             throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -73,7 +73,7 @@ public class ForgotPasswordController {
                 + "<p><a href=\"" + link + "\">Change my password</a></p>"
                 + "<br>"
                 + "<p>Ignore this email if you do remember your password, "
-                + "or you have not made the request.</p>";
+                + "or you have not made the request.</p>"+token;
 
         helper.setSubject(subject);
 
@@ -83,7 +83,7 @@ public class ForgotPasswordController {
     }
 
 
-    @GetMapping("/reset_password")
+    /*@GetMapping("/reset_password")
     public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
         User customer = customerService.getByResetPasswordToken(token);
         model.addAttribute("token", token);
@@ -109,11 +109,27 @@ public class ForgotPasswordController {
             model.addAttribute("message", "Invalid Token");
             return "message";
         } else {
-            customerService.updatePassword(customer, password);
+            customerService.updatePassword2(customer, password);
 
             model.addAttribute("message", "You have successfully changed your password.");
         }
 
         return "message";
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }*/
 }

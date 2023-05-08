@@ -75,5 +75,12 @@ public class IADminUserController {
         mailsender.send(constructResetTokenEmail(getAppUrl(request), request.getLocale(), token, user));
         return new GenericResponse("Email sent with reset password link");
     }*/
+   @PostMapping("/resetpassword/new")
+   public void resetpassword (@RequestParam long userid,@RequestParam String newpassword)  {
+       User user=userService.getUser(userid);
+        userService.updatePassword(user,newpassword);
+
+
+   }
 
 }
